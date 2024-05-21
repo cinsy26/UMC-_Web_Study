@@ -9,6 +9,7 @@ import PopularPage from "./pages/PopularPage"
 import TopRatedPage from "./pages/TopRatedPage"
 import UpComingPage from "./pages/UpComingPage"
 import MovieDetailPage from "./pages/MovieDetail";
+import Signup from "./pages/SignupPage";
 
 function App() {
   return ( 
@@ -22,6 +23,8 @@ function App() {
         <Route path="/upcomingpage" element={<UpComingPage />} />
         <Route path="/moviedetailpage/:id" element={<MovieDetailPage />} />
         <Route path="/*" element={<NotFound />} />
+        <Route path="/signuppage" element={<Signup />} />
+
 
 
       </Routes>

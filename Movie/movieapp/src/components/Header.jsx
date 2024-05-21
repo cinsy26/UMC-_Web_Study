@@ -76,8 +76,8 @@ export default function Header(){
                 <HeaderRightWrap>
                     <ul>
                         <li>
-                            <HeadernavItem to='/' >
-                                login
+                            <HeadernavItem to='/signuppage' >
+                                회원가입
                             </HeadernavItem>
                         </li>
                         <li>
