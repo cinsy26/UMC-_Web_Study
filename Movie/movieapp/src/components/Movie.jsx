@@ -22,6 +22,10 @@ const MovieContainer = styled.div`
          height: 80%; /* 이미지의 높이를 부모 요소의 70%로 설정 */
 
     }
+
+    &:hover .moviedetail-container {
+        display: block;
+      }
 `
 
 const MovieInfo = styled.div`
@@ -29,6 +33,24 @@ const MovieInfo = styled.div`
     padding: 5px;
     justify-content: space-between;
     align-items: center;
+
+`
+
+const MovieDetailContainer = styled.div`
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* movie-container의 너비에 맞게 설정 */
+    height: 100%; /* movie-container의 높이에 맞게 설정 */
+    background-color: rgba(0, 0, 0, 0.8); /* 투명한 검은 배경색 */
+    color: white;
+    border-radius: 5px;
+    padding: 20px;
+    box-sizing: border-box;
+
+   
+
 `
 
 
@@ -53,6 +75,10 @@ export default function Movie({ movies }){
                         <h4>{movie.title}</h4>
                         <h4>{movie.vote_average}</h4>
                     </MovieInfo>
+                    <MovieDetailContainer className="moviedetail-container">
+                        <h4>{movie.title}</h4>
+                        <h4>{movie.overview}</h4>
+                    </MovieDetailContainer>
                 </MovieContainer>
              ))}
         </AppContainer>
