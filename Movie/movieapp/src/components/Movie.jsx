@@ -1,6 +1,8 @@
 import React from "react";
+import { useState } from "react";
 import styled from "styled-components"; 
 import { useNavigate} from "react-router-dom";
+import axios from "axios";
 
 const AppContainer = styled.div`
   display: flex;
@@ -49,21 +51,31 @@ const MovieDetailContainer = styled.div`
     padding: 20px;
     box-sizing: border-box;
 
-   
-
 `
-
 
 
 export default function Movie({ movies }){
 
     const navigate = useNavigate();
+    const [movieDetail, setMovieDetails] = useState(null);
 
-    const OnClickMovieItem = (movie) => {
-        navigate(`/moviedetailpage/${movie.id}`,{
-            state: movie
-    })
+    const OnClickMovieItem = async(movie) => {
+        try{
+            const response = await axios.get(`https://api.themoviedb.org/3/movie/${movie.id}`,{
+                params: {
+                    api_key: '6645b8c9d10784fde1593356bb56ee2e'
+                }
+            });
+            const movieData = response.data;
+            navigate(`/moviedetailpage/${movie.id}`,{
+                state: movieData
+            });
+        }catch(error) {
+            console.error("Failed to fetch movie details", error);
+        }
     }
+
+
 
     return(
         <AppContainer>

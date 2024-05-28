@@ -73,6 +73,8 @@ export default function MainPage() {
     const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const [movies, setMovies] = useState([]);
+    const [isLoading, setIsLoading] = useState(false); // 로딩 상태
+    const [error, setError] = useState(null); // 에러 상태
 
     // 검색어 입력 시 호출되는 함수
     const handleSearchInputChange = (event) => {
@@ -81,7 +83,10 @@ export default function MainPage() {
 
     useEffect(() => {
         const controller = new AbortController();
+
         const fetchMovies = async () => {
+            setIsLoading(true); // 데이터를 받아오는 중임을 표시
+
             try {
                 if (!debouncedSearchQuery) {
                     setMovies([]); // 검색어가 없으면 영화 목록 초기화
@@ -94,8 +99,10 @@ export default function MainPage() {
                 setMovies(data.results);
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    console.error(error);
+                    setError(error); // 에러가 발생한 경우 에러 상태 업데이트
                 }
+            } finally {
+                setIsLoading(false); // 데이터를 받아오는 과정 종료
             }
         };
 
@@ -128,7 +135,10 @@ export default function MainPage() {
                         </TitleButton>
                     </div>
                 </MainPageDownWrap>
-                {debouncedSearchQuery && (
+                {/* 로딩 중일 때 또는 에러가 발생했을 때 메시지 표시 */}
+                {(isLoading || error) && <div>데이터를 받아오는 중입니다.</div>}
+                {/* 로딩 상태가 아니고 에러도 없을 때에만 영화 목록을 표시 */}
+                {!isLoading && !error && debouncedSearchQuery && (
                     <MainPageBottom>
                         <Movie movies={movies} />
                     </MainPageBottom>
