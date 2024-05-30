@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components"; 
 import { useForm } from 'react-hook-form';
 import { BrowserRouter as Router, useNavigate } from 'react-router-dom'; // BrowserRouter를 추가해줍니다.
+import { Link } from "react-router-dom";
 
 
 const SignupPageBack = styled.div`
@@ -29,7 +30,7 @@ const InputPart = styled.input`
 
 const SignupValidate = styled.div`
     width: 400px;
-    height: 60px;
+    height: 40px;
     color: red;
     margin-left: 10px;
 `
@@ -55,6 +56,14 @@ const OtherLeft = styled.div`
 const OtherRight = styled.div`
     cursor: pointer;
     margin-left: 15px
+`
+
+
+const StyledLink = styled(Link)`
+    text-decoration: none; /* 링크 밑줄 제거 */
+    font-weight: bold;
+    margin-top: 20px;
+    color: white;
 `
 
 function SignUp() {
@@ -91,6 +100,12 @@ function SignUp() {
                     placeholder="이름을 입력해주세요"
                     {...register('name', {required:true})}/>
                 <SignupValidate>{errors.name && <p>이름을 입력해주세요</p>}</SignupValidate>
+
+                <InputPart
+                    type="text"
+                    placeholder="아이디를 입력해주세요"
+                    {...register('id', {required:true})}/>
+                <SignupValidate>{errors.id && <p>아이디를 입력해주세요</p>}</SignupValidate>
 
                 <InputPart
                     type="email"
@@ -166,7 +181,9 @@ function SignUp() {
                 <SignupButton onClick={handleSubmit(onSubmit)}>제출하기</SignupButton>
 
                 <Other>
-                    <OtherLeft>이미 아이디가 있으신가요?</OtherLeft>
+                    <OtherLeft>
+                        <StyledLink to="/loginpage">이미 아이디가 있으신가요?</StyledLink>
+                    </OtherLeft>
                     <OtherRight>로그인 페이지로 이동하기</OtherRight>
                 </Other>
             </form>
