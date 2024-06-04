@@ -1,38 +1,38 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { LoginContext } from '../hooks/LoginContext';
 
 const HeaderContainer = styled.div`
     background-color: rgba(3, 37, 65, 1);
-    /*헤더 고정시키기 위한 속성*/
     position: fixed;
-    top: 0; /* 화면의 맨 위에 고정 */
+    top: 0;
     left: 0;
-    width: 100%; /* 화면 전체의 너비를 차지 */
-    z-index: 1000; /* 다른 요소 위에 표시하기 위해 z-index 설정 */
-`
+    width: 100%;
+    z-index: 1000;
+`;
 
 const Headerwrap = styled.div`
-    height: 50px; /*높이*/
+    height: 50px;
     width: 100%;
-    margin: 0 auto; /* 가운데 정렬 하기 위해 */
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+`;
 
-    display: flex; /*세로 정렬 위해서*/
-    align-items: center; /*세로 정렬 위해서*/
-    justify-content: space-between; /*wrap right 와 left 분산 정렬*/
-`
 const HeaderLeftWrap = styled.div`
     display: flex;
-    margin-right: 14px; /*버튼 따닥따닥 붙어 있는거 띄워주기*/
-    padding: 8px;/*버튼 선택 영역 늘리기*/
-`
+    margin-right: 14px;
+    padding: 8px;
+`;
 
 const HeaderRightWrap = styled.div`
     display: flex;
     
     ul {
         display: flex;
-        list-style: none; /* 리스트 마커 제거 */
+        list-style: none;
         padding: 0;
         margin: 0;
     }
@@ -43,11 +43,10 @@ const HeaderRightWrap = styled.div`
         color: white;
         font-size: 1rem;
     }
-    li: hover {
+    li:hover {
         font-weight: bold;
         font-size: 110%;
     }
-   
 `;
 
 const UMCMovieLink = styled(Link)`
@@ -60,12 +59,12 @@ const HeadernavItem = styled(Link)`
     color: white;
     text-decoration: none;
     font-weight: 300;
-   
-    
 `;
 
-export default function Header(){
-    return(
+export default function Header() {
+    const { isLoggedIn, logout } = useContext(LoginContext);
+
+    return (
         <HeaderContainer>
             <Headerwrap>
                 <HeaderLeftWrap>
@@ -75,16 +74,26 @@ export default function Header(){
                 </HeaderLeftWrap>
                 <HeaderRightWrap>
                     <ul>
-                        <li>
-                            <HeadernavItem to='/loginpage' >
-                                로그인
-                            </HeadernavItem>
-                        </li>
-                        <li>
-                            <HeadernavItem to='/signuppage' >
-                                회원가입
-                            </HeadernavItem>
-                        </li>
+                        {isLoggedIn ? (
+                            <li>
+                                <HeadernavItem to='/' onClick={logout}>
+                                    로그아웃
+                                </HeadernavItem>
+                            </li>
+                        ) : (
+                            <>
+                                <li>
+                                    <HeadernavItem to='/loginpage'>
+                                        로그인
+                                    </HeadernavItem>
+                                </li>
+                                <li>
+                                    <HeadernavItem to='/signuppage'>
+                                        회원가입
+                                    </HeadernavItem>
+                                </li>
+                            </>
+                        )}
                         <li>
                             <HeadernavItem to='/popularpage'>
                                 Popular
@@ -108,8 +117,6 @@ export default function Header(){
                     </ul>
                 </HeaderRightWrap>
             </Headerwrap>
-
         </HeaderContainer>
-    )
+    );
 }
-

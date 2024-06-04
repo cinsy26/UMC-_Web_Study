@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import styled from "styled-components"; 
 import { IoSearchOutline } from "react-icons/io5";
 import Movie from "../components/Movie";
 import useDebounce from "../hooks/debounce";
+import { LoginContext } from '../hooks/LoginContext'; // LoginContext를 import
 
 const MainPageContainer = styled.div`
     height: 100%;
@@ -70,6 +71,9 @@ const MainPageBottom = styled.div`
 `;
 
 export default function MainPage() {
+    const { isLoggedIn } = useContext(LoginContext); // 로그인 상태를 가져옴
+    const username = localStorage.getItem('username'); // 로컬 스토리지에서 username을 가져옴
+
     const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태
     const debouncedSearchQuery = useDebounce(searchQuery, 500);
     const [movies, setMovies] = useState([]);
@@ -116,7 +120,7 @@ export default function MainPage() {
     return (
         <MainPageContainer>
             <MainPageTop>
-                환영합니다
+                {isLoggedIn ? `${username} 환영합니다` : '환영합니다'}
             </MainPageTop>
             <MainPageDown>
                 <MainPageDownTitle>Find your movies!</MainPageDownTitle>

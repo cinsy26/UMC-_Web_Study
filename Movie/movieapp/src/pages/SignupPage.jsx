@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components"; 
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { BrowserRouter as Router, useNavigate } from 'react-router-dom'; // BrowserRouter를 추가해줍니다.
 import { Link } from "react-router-dom";
-
+import axios from 'axios'; // axios를 import합니다.
 
 const SignupPageBack = styled.div`
     display: flex;
@@ -39,8 +39,11 @@ const SignupButton = styled.button`
     height: 50px;
     border-radius: 30px; /* 모서리를 둥글게 만듭니다 */
     margin-bottom: 30px;
-
+    background-color: ${props => props.disabled ? '#ccc' : '#007bff'}; /* 버튼 색상 */
+    color: ${props => props.disabled ? '#666' : 'white'}; /* 텍스트 색상 */
+    cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'}; /* 커서 모양 */
 `
+
 const Other = styled.div`
     display: flex;
     justify-content: center;
@@ -58,7 +61,6 @@ const OtherRight = styled.div`
     margin-left: 15px
 `
 
-
 const StyledLink = styled(Link)`
     text-decoration: none; /* 링크 밑줄 제거 */
     font-weight: bold;
@@ -73,19 +75,65 @@ function SignUp() {
         register,
         handleSubmit,
         watch,
-        formState: { errors },
-      } = useForm({mode: 'onChange'});
-    
-    const passwordValue = watch('password');// 'password' 필드의 값을 감시합니다
+        setError,
+        formState: { errors, isValid },
+    } = useForm({ mode: 'onChange' });
 
-    const onSubmit = (data) => { //이부분 좀 더 찾아보기
-        if (Object.keys(errors).length === 0) {
-            // 모든 유효성 검사가 통과한 경우에만 홈페이지로 이동하고 알림을 띄웁니다.
-            console.log("Form Submitted Successfully!", data); // 유효성 검사가 통과한 경우에만 로그를 출력합니다.
+    const password = watch('password');
+    const passwordConfirm = watch('passwordConfirm');
+
+    useEffect(() => {
+        if (password !== passwordConfirm) {
+            setError('passwordConfirm', {
+                type: 'manual',
+                message: '비밀번호가 일치하지 않습니다.',
+            });
+        }
+    }, [password, passwordConfirm, setError]);
+
+    const onSubmit = async (data) => {
+        try {
+            if (!isValid) {
+                console.log("데이터가 유효하지 않습니다.");
+                return; // 데이터가 유효하지 않으면 함수 종료
+            }
+            console.log("전송된 데이터:", data); // 전송된 데이터를 콘솔에 출력합니다.
+
+            const response = await axios({
+                url: `http://localhost:8080/auth/signup`, 
+                method: "post",
+                headers: {
+                    "Content-type": "application/json"
+                },
+                data: {
+                    name: data.name,
+                    username: data.id,
+                    email: data.email,
+                    age: data.age,
+                    password: data.password,
+                    passwordCheck: data.passwordConfirm,
+                }
+            });
+            
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("username", response.data.username);
+    
             alert("회원가입이 성공적으로 완료되었습니다!");
-            navigate('/'); // 홈페이지로 이동합니다.
-        } else {
-            console.log("Form has errors. Please correct them before submitting."); // 유효성 검사에서 오류가 발생한 경우에만 에러 로그를 출력합니다.
+            navigate('/loginpage');
+        } catch (err) {
+            console.error("Form submission error:", err); // 콘솔에 에러 출력
+
+            if (err.response.status === 409 && err.response.data.message.includes("already exists")) {
+                alert("아이디가 이미 존재합니다.");
+            } else if (err.response.status === 400 && err.response.data.message === "Passwords do not match") {
+                setError('passwordConfirm', {
+                    type: 'manual',
+                    message: '비밀번호가 일치하지 않습니다.',
+                });
+            } else {
+                console.error("Form submission error:", err);
+                alert("서버 오류가 발생했습니다. 나중에 다시 시도해주세요.");
+            }
         }
     };
     
@@ -98,23 +146,22 @@ function SignUp() {
                 <InputPart
                     type="text"
                     placeholder="이름을 입력해주세요"
-                    {...register('name', {required:true})}/>
+                    {...register('name', { required: true })} />
                 <SignupValidate>{errors.name && <p>이름을 입력해주세요</p>}</SignupValidate>
 
                 <InputPart
                     type="text"
                     placeholder="아이디를 입력해주세요"
-                    {...register('id', {required:true})}/>
+                    {...register('id', { required: true })} />
                 <SignupValidate>{errors.id && <p>아이디를 입력해주세요</p>}</SignupValidate>
 
                 <InputPart
                     type="email"
                     placeholder="이메일을 입력해주세요"
                     {...register('email', {
-                        required:true, 
+                        required: true,
                         pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                    
-                    })}/>
+                    })} />
                 <SignupValidate>
                     {errors.email?.type === 'required' && (<p>이메일을 입력해주세요</p>)}
                     {errors.email?.type === 'pattern' && (<p>이메일 양식에 맞게 입력해주세요</p>)}
@@ -161,7 +208,6 @@ function SignUp() {
                     {errors.password?.message && (<p>{errors.password.message}</p>)}
                 </SignupValidate>
 
-
                 <InputPart
                     type="password"
                     placeholder="비밀번호 확인"
@@ -177,8 +223,7 @@ function SignUp() {
                     {errors.passwordConfirm?.message && (<p>{errors.passwordConfirm.message}</p>)}
                 </SignupValidate>
 
-                
-                <SignupButton onClick={handleSubmit(onSubmit)}>제출하기</SignupButton>
+                <SignupButton type="submit" disabled={!isValid || password !== passwordConfirm}>제출하기</SignupButton>
 
                 <Other>
                     <OtherLeft>

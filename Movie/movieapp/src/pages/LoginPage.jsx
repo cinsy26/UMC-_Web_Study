@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components"; 
 import { useForm } from 'react-hook-form';
-import { BrowserRouter as Router, useNavigate } from 'react-router-dom'; // BrowserRouter를 추가해줍니다.
-import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+import { LoginContext } from '../hooks/LoginContext';
 
 const LoginPageBack = styled.div`
     display: flex;
@@ -34,7 +34,7 @@ const LoginValidate = styled.div`
     color: red;
     margin-left: 5px;
     margin-bottom: 10px;
-    white-space: nowrap; /*두줄 막기*/
+    white-space: nowrap;
 `
 
 const LoginButton = styled.button`
@@ -53,20 +53,43 @@ const FormWrapper = styled.div`
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useContext(LoginContext);  // LoginContext에서 login 함수를 가져옴
 
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
-      } = useForm({mode: 'onChange'});
+        } = useForm({mode: 'onChange'});
 
-    const onSubmit = (data) => {
-        if (Object.keys(errors).length === 0) {
-            console.log("Form Submitted Successfully!", data);
+    const onSubmit = async (formData) => {
+        try {
+            const response = await fetch('http://localhost:8080/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: formData.id,
+                    password: formData.password
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('로그인에 실패했습니다.');
+            }
+
+            const responseData = await response.json();
+
+            localStorage.setItem('token', responseData.token);
+            localStorage.setItem('username', formData.id);
+            localStorage.setItem("isLoggedIn", "1");
+
+            login();  // LoginContext의 login 함수를 호출하여 상태를 업데이트
+
             alert("로그인이 성공적으로 완료되었습니다!");
             navigate('/');
-        } else {
+        } catch (error) {
+            console.error('로그인 오류:', error);
             console.log("Form has errors. Please correct them before submitting.");
         }
     };
